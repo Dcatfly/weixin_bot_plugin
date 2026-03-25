@@ -1,4 +1,4 @@
-# weixin-bot
+# weixin-bot-plugin
 
 微信 Bot SDK — 通过 iLink Bot API 实现微信消息收发的 Node.js 库。
 
@@ -22,16 +22,16 @@
 ## 安装
 
 ```bash
-pnpm add weixin-bot
+pnpm add weixin-bot-plugin
 # 或
-npm install weixin-bot
+npm install weixin-bot-plugin
 ```
 
 ## 快速开始
 
 ```typescript
-import { WeixinBotClient } from "weixin-bot";
-import type { InboundMessage } from "weixin-bot";
+import { WeixinBotClient } from "weixin-bot-plugin";
+import type { InboundMessage } from "weixin-bot-plugin";
 
 const bot = new WeixinBotClient();
 

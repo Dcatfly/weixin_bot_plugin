@@ -1,7 +1,14 @@
 {
-  "name": "weixin-bot",
+  "name": "weixin-bot-plugin",
   "version": "0.1.0",
   "description": "WeChat Bot SDK via iLink Bot API",
+  "license": "MIT",
+  "author": "zhzhang",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dcatfly/weixin_bot_plugin.git"
+  },
+  "keywords": ["wechat", "weixin", "bot", "sdk"],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,10 +18,12 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "files": ["dist"],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
     "qrcode-terminal": "0.12.0",

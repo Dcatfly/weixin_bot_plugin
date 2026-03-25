@@ -1,4 +1,4 @@
-# weixin-bot
+# weixin-bot-plugin
 
 WeChat Bot SDK for Node.js — send and receive WeChat messages via the iLink Bot API.
 
@@ -22,16 +22,16 @@ Built as a standalone, framework-agnostic library on top of `EventEmitter`. Gene
 ## Install
 
 ```bash
-pnpm add weixin-bot
+pnpm add weixin-bot-plugin
 # or
-npm install weixin-bot
+npm install weixin-bot-plugin
 ```
 
 ## Quick Start
 
 ```typescript
-import { WeixinBotClient } from "weixin-bot";
-import type { InboundMessage } from "weixin-bot";
+import { WeixinBotClient } from "weixin-bot-plugin";
+import type { InboundMessage } from "weixin-bot-plugin";
 
 const bot = new WeixinBotClient();
 

@@ -1,4 +1,4 @@
-# weixin-bot
+# weixin-bot-plugin
 
 微信 Bot SDK — 通过 iLink Bot API 实现微信消息收发，基于 EventEmitter 的通用库。
 
