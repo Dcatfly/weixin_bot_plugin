@@ -149,7 +149,9 @@ interface ConnectionStatus {
 ```bash
 pnpm build       # 构建到 dist/（ESM，minified，含 .d.ts）
 pnpm typecheck   # 类型检查
-pnpm dev         # 监听模式
+pnpm test        # 运行所有测试（Vitest）
+pnpm test:watch  # 测试监听模式
+pnpm dev         # 构建监听模式
 ```
 
 ## 项目结构

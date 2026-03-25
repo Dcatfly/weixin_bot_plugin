@@ -149,7 +149,9 @@ interface ConnectionStatus {
 ```bash
 pnpm build       # Build to dist/ (ESM, minified, with .d.ts)
 pnpm typecheck   # Type check without emitting
-pnpm dev         # Watch mode
+pnpm test        # Run all tests (Vitest)
+pnpm test:watch  # Watch mode for tests
+pnpm dev         # Watch mode for build
 ```
 
 ## Architecture

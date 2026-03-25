@@ -20,7 +20,9 @@
 
 ```bash
 pnpm build         # tsup 打包（ESM，minified，含 .d.ts → dist/）
-pnpm typecheck     # tsc --noEmit 类型检查
+pnpm typecheck     # tsc --noEmit 类型检查（使用 tsconfig.build.json，排除测试文件）
+pnpm test          # vitest run 运行所有测试
+pnpm test:watch    # vitest watch 模式
 pnpm dev           # tsup --watch 开发模式
 ```
 
@@ -64,7 +66,9 @@ src/
 - ESM 相对导入带 `.js` 后缀：`import { logger } from "../util/logger.js"`
 - Node 内置模块用 `node:` 前缀：`import os from "node:os"`
 - 私有变量 `_` 前缀，类型用 `Params`/`Options`/`Result` 后缀
-- 无测试框架，验证靠 `pnpm typecheck`
+- 测试框架 Vitest，测试文件与源码同级放置（`*.test.ts`）
+- 测试中显式 `import { describe, it, expect } from "vitest"`，不使用全局注入
+- `tsconfig.build.json` 排除测试文件，`tsconfig.json` 保留（IDE 支持）
 
 ## 环境变量
 
