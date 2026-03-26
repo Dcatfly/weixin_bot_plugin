@@ -243,15 +243,14 @@ describe("send functions", () => {
   // -------------------------------------------------------------------------
 
   describe("sendMessageWeixin", () => {
-    it("throws when contextToken is missing", async () => {
-      await expect(
-        sendMessageWeixin({
-          to: "user-1",
-          text: "hello",
-          opts: { baseUrl: BASE_OPTS.baseUrl, token: BASE_OPTS.token },
-        }),
-      ).rejects.toThrow("contextToken is required");
-      expect(sendMessageApi).not.toHaveBeenCalled();
+    it("warns but still sends when contextToken is missing", async () => {
+      const result = await sendMessageWeixin({
+        to: "user-1",
+        text: "hello",
+        opts: { baseUrl: BASE_OPTS.baseUrl, token: BASE_OPTS.token },
+      });
+      expect(sendMessageApi).toHaveBeenCalledOnce();
+      expect(result.messageId).toBeTruthy();
     });
 
     it("sends correct payload with text message", async () => {
@@ -404,15 +403,15 @@ describe("sendMediaItems", () => {
 // ---------------------------------------------------------------------------
 
 describe("sendImageMessageWeixin", () => {
-  it("throws when contextToken is missing", async () => {
-    await expect(
-      sendImageMessageWeixin({
-        to: "user-1",
-        text: "",
-        uploaded: UPLOADED,
-        opts: { baseUrl: BASE_OPTS.baseUrl, token: BASE_OPTS.token },
-      }),
-    ).rejects.toThrow("contextToken is required");
+  it("warns but still sends when contextToken is missing", async () => {
+    const result = await sendImageMessageWeixin({
+      to: "user-1",
+      text: "",
+      uploaded: UPLOADED,
+      opts: { baseUrl: BASE_OPTS.baseUrl, token: BASE_OPTS.token },
+    });
+    expect(sendMessageApi).toHaveBeenCalled();
+    expect(result.messageId).toBeTruthy();
   });
 
   it("constructs correct image_item and delegates to sendMessageApi", async () => {
@@ -455,15 +454,15 @@ describe("sendImageMessageWeixin", () => {
 // ---------------------------------------------------------------------------
 
 describe("sendVideoMessageWeixin", () => {
-  it("throws when contextToken is missing", async () => {
-    await expect(
-      sendVideoMessageWeixin({
-        to: "user-1",
-        text: "",
-        uploaded: UPLOADED,
-        opts: { baseUrl: BASE_OPTS.baseUrl, token: BASE_OPTS.token },
-      }),
-    ).rejects.toThrow("contextToken is required");
+  it("warns but still sends when contextToken is missing", async () => {
+    const result = await sendVideoMessageWeixin({
+      to: "user-1",
+      text: "",
+      uploaded: UPLOADED,
+      opts: { baseUrl: BASE_OPTS.baseUrl, token: BASE_OPTS.token },
+    });
+    expect(sendMessageApi).toHaveBeenCalled();
+    expect(result.messageId).toBeTruthy();
   });
 
   it("constructs correct video_item", async () => {
@@ -492,16 +491,16 @@ describe("sendVideoMessageWeixin", () => {
 // ---------------------------------------------------------------------------
 
 describe("sendFileMessageWeixin", () => {
-  it("throws when contextToken is missing", async () => {
-    await expect(
-      sendFileMessageWeixin({
-        to: "user-1",
-        text: "",
-        fileName: "doc.pdf",
-        uploaded: UPLOADED,
-        opts: { baseUrl: BASE_OPTS.baseUrl, token: BASE_OPTS.token },
-      }),
-    ).rejects.toThrow("contextToken is required");
+  it("warns but still sends when contextToken is missing", async () => {
+    const result = await sendFileMessageWeixin({
+      to: "user-1",
+      text: "",
+      fileName: "doc.pdf",
+      uploaded: UPLOADED,
+      opts: { baseUrl: BASE_OPTS.baseUrl, token: BASE_OPTS.token },
+    });
+    expect(sendMessageApi).toHaveBeenCalled();
+    expect(result.messageId).toBeTruthy();
   });
 
   it("constructs correct file_item with fileName and len as string", async () => {
