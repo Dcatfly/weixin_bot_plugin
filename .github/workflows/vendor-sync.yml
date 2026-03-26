@@ -204,6 +204,7 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
           git checkout -b "$BRANCH"
           # -A 同时 stage 新增、修改和删除（旧 tgz 的删除）
