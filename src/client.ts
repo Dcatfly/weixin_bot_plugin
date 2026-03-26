@@ -23,7 +23,12 @@ import { setChannelVersion, sendTyping } from "./api/api.js";
 import { WeixinConfigManager } from "./api/config-cache.js";
 import { resetSession, isSessionPaused, pauseSession } from "./api/session-guard.js";
 import { TypingStatus } from "./api/types.js";
-import { setContextToken, getContextToken } from "./messaging/inbound.js";
+import {
+  setContextTokenStateDir,
+  restoreContextTokens,
+  clearContextTokensForAccount,
+  getContextToken,
+} from "./messaging/inbound.js";
 import { sendMessageWeixin, markdownToPlainText } from "./messaging/send.js";
 import { sendWeixinMediaFile } from "./messaging/send-media.js";
 import { cleanupTempMedia } from "./media/media-download.js";
@@ -128,6 +133,7 @@ export class WeixinBotClient extends EventEmitter {
 
     setStateDir(stateDir);
     setSyncStateDir(stateDir);
+    setContextTokenStateDir(stateDir);
 
     if (config?.channelVersion) {
       setChannelVersion(config.channelVersion);
@@ -163,6 +169,8 @@ export class WeixinBotClient extends EventEmitter {
       (msg) => logger.info(msg),
     );
 
+    restoreContextTokens(account.accountId);
+
     this.pollAbortController = new AbortController();
 
     const pollOpts = {
@@ -175,7 +183,6 @@ export class WeixinBotClient extends EventEmitter {
       tempDir: this.config.tempDir,
       callbacks: {
         onMessage: async (msg: InboundMessage) => {
-          setContextToken(msg.chatId, msg.raw.context_token!);
           this.lastInboundAt = Date.now();
           this.emit("message", msg);
         },
@@ -289,6 +296,7 @@ export class WeixinBotClient extends EventEmitter {
     const ids = listIndexedWeixinAccountIds();
     if (ids.length > 0) {
       const accountId = ids[0];
+      clearContextTokensForAccount(accountId);
       removeWeixinAccount(accountId);
     }
   }
@@ -316,7 +324,7 @@ export class WeixinBotClient extends EventEmitter {
 
     const contextToken = getContextToken(chatId);
     if (!contextToken) {
-      throw new Error(`WeixinBotClient.sendText: no contextToken for chatId=${chatId}`);
+      logger.warn(`WeixinBotClient.sendText: no contextToken for chatId=${chatId}, sending without context`);
     }
 
     const finalText = opts?.raw !== true ? markdownToPlainText(text) : text;
@@ -344,7 +352,7 @@ export class WeixinBotClient extends EventEmitter {
 
     const contextToken = getContextToken(chatId);
     if (!contextToken) {
-      throw new Error(`WeixinBotClient.sendMedia: no contextToken for chatId=${chatId}`);
+      logger.warn(`WeixinBotClient.sendMedia: no contextToken for chatId=${chatId}, sending without context`);
     }
 
     const finalCaption = caption ? markdownToPlainText(caption) : "";

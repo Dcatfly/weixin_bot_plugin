@@ -46,6 +46,9 @@ vi.mock("./api/session-guard.js", () => ({
 }));
 
 vi.mock("./messaging/inbound.js", () => ({
+  setContextTokenStateDir: vi.fn(),
+  restoreContextTokens: vi.fn(),
+  clearContextTokensForAccount: vi.fn(),
   setContextToken: vi.fn(),
   getContextToken: vi.fn().mockReturnValue(undefined),
 }));
@@ -88,7 +91,7 @@ import {
 import { setSyncStateDir } from "./storage/sync-buf.js";
 import { setChannelVersion, sendTyping } from "./api/api.js";
 import { resetSession, isSessionPaused, pauseSession } from "./api/session-guard.js";
-import { setContextToken, getContextToken } from "./messaging/inbound.js";
+import { setContextTokenStateDir, restoreContextTokens, clearContextTokensForAccount, getContextToken } from "./messaging/inbound.js";
 import { sendMessageWeixin, markdownToPlainText } from "./messaging/send.js";
 import { sendWeixinMediaFile } from "./messaging/send-media.js";
 import { cleanupTempMedia } from "./media/media-download.js";
@@ -249,10 +252,11 @@ describe("sendText", () => {
     await expect(client.sendText("chat1", "hi")).rejects.toThrow("not started");
   });
 
-  it("throws when no contextToken", async () => {
+  it("warns but still sends when no contextToken", async () => {
     const client = await startedClient();
     vi.mocked(getContextToken).mockReturnValue(undefined);
-    await expect(client.sendText("chat1", "hi")).rejects.toThrow("no contextToken");
+    await client.sendText("chat1", "hi");
+    expect(sendMessageWeixin).toHaveBeenCalledOnce();
   });
 
   it("converts markdown to plain text by default", async () => {
@@ -369,6 +373,7 @@ describe("logout", () => {
     await client.start();
     await client.logout();
 
+    expect(clearContextTokensForAccount).toHaveBeenCalledWith("acc-1");
     expect(removeWeixinAccount).toHaveBeenCalledWith("acc-1");
     expect(client.getStatus().connected).toBe(false);
   });
@@ -459,7 +464,7 @@ describe("poll-loop callbacks", () => {
     return pollOpts.callbacks;
   }
 
-  it("onMessage sets contextToken, updates lastInboundAt, emits message", async () => {
+  it("onMessage updates lastInboundAt and emits message", async () => {
     const client = await startedClient();
     const msgListener = vi.fn();
     client.on("message", msgListener);
@@ -472,7 +477,6 @@ describe("poll-loop callbacks", () => {
     };
     await callbacks.onMessage(msg as any);
 
-    expect(setContextToken).toHaveBeenCalledWith("user-123", "ctx-789");
     expect(msgListener).toHaveBeenCalledWith(msg);
     expect(client.getStatus().lastInboundAt).toBeDefined();
   });
@@ -634,13 +638,12 @@ describe("onQrRefresh callback", () => {
 // ---------------------------------------------------------------------------
 
 describe("sendMedia additional", () => {
-  it("throws when no contextToken", async () => {
+  it("warns but still sends when no contextToken", async () => {
     const client = await startedClient();
     vi.mocked(getContextToken).mockReturnValue(undefined);
 
-    await expect(
-      client.sendMedia("chat1", "/path/file.jpg"),
-    ).rejects.toThrow("no contextToken");
+    await client.sendMedia("chat1", "/path/file.jpg");
+    expect(sendWeixinMediaFile).toHaveBeenCalledOnce();
   });
 
   it("passes empty string when no caption", async () => {
