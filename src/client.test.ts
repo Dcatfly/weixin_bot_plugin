@@ -199,8 +199,10 @@ describe("start", () => {
     });
 
     const client = new WeixinBotClient();
+    expect(setContextTokenStateDir).toHaveBeenCalled();
     const result = await client.start();
     expect(result).toBe(true);
+    expect(restoreContextTokens).toHaveBeenCalledWith("acc-1");
     expect(startPollLoop).toHaveBeenCalledWith(
       expect.objectContaining({
         baseUrl: "https://ilinkai.weixin.qq.com",
