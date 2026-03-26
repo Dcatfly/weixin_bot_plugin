@@ -232,6 +232,10 @@ jobs:
           - [ ] Check changelog accuracy
           - [ ] Verify no breaking changes affect src/"
 
-          gh pr create \
+          if ! gh pr create \
             --title "chore(vendor): bump openclaw-weixin ${LOCAL_VERSION} → ${REMOTE_VERSION}" \
-            --body "$BODY"
+            --body "$BODY"; then
+            echo "::error::Failed to create PR, cleaning up remote branch"
+            git push origin --delete "$BRANCH" || true
+            exit 1
+          fi
