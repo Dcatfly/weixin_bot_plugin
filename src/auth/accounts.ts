@@ -137,10 +137,12 @@ export function saveWeixinAccount(
   }
 }
 
-/** Remove account: delete credential file, sync buf, and remove from index. */
+/** Remove account: delete credential file, context-tokens, sync buf, and remove from index. */
 export function removeWeixinAccount(accountId: string): void {
   // 删除凭证文件
   try { fs.unlinkSync(resolveAccountPath(accountId)); } catch { /* ignore */ }
+  // 删除 context-tokens 文件
+  try { fs.unlinkSync(path.join(resolveAccountsDir(), `${accountId}.context-tokens.json`)); } catch { /* ignore */ }
   // 删除 sync buf 文件
   try { fs.unlinkSync(getSyncBufFilePath(accountId)); } catch { /* ignore */ }
   // 从索引中移除

@@ -94,6 +94,22 @@ describe("accounts", () => {
       expect(loadWeixinAccount("acct-rm")).toBeNull();
       expect(listIndexedWeixinAccountIds()).not.toContain("acct-rm");
     });
+
+    it("removes context-tokens file when present", () => {
+      saveWeixinAccount("acct-rm-ctx", { token: "x" });
+      registerWeixinAccountId("acct-rm-ctx");
+
+      // Create a context-tokens file manually
+      const ctxFile = path.join(tmpDir, "accounts", "acct-rm-ctx.context-tokens.json");
+      fs.writeFileSync(ctxFile, JSON.stringify({ "chat-1": "tok-1" }));
+      expect(fs.existsSync(ctxFile)).toBe(true);
+
+      removeWeixinAccount("acct-rm-ctx");
+
+      expect(fs.existsSync(ctxFile)).toBe(false);
+      expect(loadWeixinAccount("acct-rm-ctx")).toBeNull();
+      expect(listIndexedWeixinAccountIds()).not.toContain("acct-rm-ctx");
+    });
   });
 
   describe("resolveWeixinAccount", () => {
