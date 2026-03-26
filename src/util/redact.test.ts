@@ -70,6 +70,34 @@ describe("redactBody", () => {
   it("respects custom maxLen", () => {
     expect(redactBody("hello world", 5)).toBe("hello…(truncated, totalLen=11)");
   });
+
+  it("redacts context_token values in JSON body", () => {
+    const body = '{"context_token":"secret-token-value","msg":"hello"}';
+    expect(redactBody(body, 500)).toBe('{"context_token":"<redacted>","msg":"hello"}');
+  });
+
+  it("redacts multiple sensitive fields", () => {
+    const body = '{"token":"tk1","bot_token":"bt1","context_token":"ct1"}';
+    expect(redactBody(body, 500)).toBe('{"token":"<redacted>","bot_token":"<redacted>","context_token":"<redacted>"}');
+  });
+
+  it("redacts Authorization header value", () => {
+    const body = '{"Authorization":"Bearer xyz"}';
+    expect(redactBody(body, 500)).toBe('{"Authorization":"<redacted>"}');
+  });
+
+  it("does not affect non-sensitive fields", () => {
+    const body = '{"message":"hello","status":"ok"}';
+    expect(redactBody(body, 500)).toBe(body);
+  });
+
+  it("redacts then truncates when body exceeds maxLen", () => {
+    const body = '{"context_token":"secret"}' + "x".repeat(200);
+    const result = redactBody(body, 50);
+    expect(result).toContain('"context_token":"<redacted>"');
+    expect(result).not.toContain("secret");
+    expect(result).toContain("truncated");
+  });
 });
 
 describe("redactUrl", () => {
