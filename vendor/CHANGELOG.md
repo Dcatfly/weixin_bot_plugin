@@ -1,3 +1,31 @@
+## 2.1.1
+
+### Added
+
+- **`iLink-App-Id` / `iLink-App-ClientVersion` headers**: all outgoing API requests now include these headers, sourced from the new `ilink_appid` field in `package.json` and the package version encoded as `0x00MMNNPP`.
+- **`apiGetFetch()`**: new GET fetch helper (with timeout + abort) used by QR code endpoints; replaces ad-hoc `fetch()` calls in `login-qr.ts`.
+- **`buildCommonHeaders()`**: internal helper centralising shared request headers (`iLink-App-Id`, `iLink-App-ClientVersion`, `SKRouteTag`) for both GET and POST paths.
+- **`upload_full_url` / `full_url` server-provided CDN URLs**: `GetUploadUrlResp` gains `upload_full_url` and media items gain `full_url`; when present these are used directly, bypassing client-side URL construction.
+- **`ENABLE_CDN_URL_FALLBACK` flag** in `cdn-url.ts`: controls whether client-side URL construction is used as a fallback when the server omits `full_url`.
+- **QR login IDC redirect**: new `scaned_but_redirect` status + `redirect_host` field; polling automatically switches to the redirected host mid-flow.
+- **Fixed QR base URL** (`https://ilinkai.weixin.qq.com`): QR code fetch no longer requires `baseUrl` to be pre-configured.
+- **`ilink_appid: "bot"`** field added to `package.json`.
+- **MEDIA: directive placement rule** added to channel system prompt (tag must be on its own line).
+
+### Changed
+
+- **`apiFetch()` renamed to `apiPostFetch()`**: internal rename; all POST call sites updated accordingly.
+- **`readChannelVersion()` replaced by `readPackageJson()`**: broader package.json reader enabling extraction of `ilink_appid` alongside `version`.
+- **QR polling error handling**: network/gateway errors (e.g. Cloudflare 524) now return `{ status: "wait" }` and continue polling instead of throwing.
+- **`src/log-upload.ts` replaced by `src/weixin-cli.ts`**: CLI registration logic extracted; log-upload subcommand removed (see Removed).
+- **Host version upgrade hint** updated: error message now references `npx @tencent-weixin/openclaw-weixin-cli install` instead of the legacy plugin install command.
+
+### Removed
+
+- **`logs-upload` CLI subcommand**: log file upload feature removed from the plugin.
+- **`logUploadUrl` config field**: removed from `WeixinConfigSchema`.
+- **`peerDependencies`** (`openclaw >=2026.3.22`): removed from `package.json`.
+
 ## 2.0.1
 
 ### Added
