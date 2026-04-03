@@ -1,3 +1,37 @@
+## 2.1.4
+
+### Added
+
+- **`StreamingMarkdownFilter`** (`src/messaging/markdown-filter.ts`): streaming character-level state machine that strips unsupported Markdown on-the-fly; replaces whole-string `markdownToPlainText`. Markdown goes from effectively unsupported to partially supported.
+- **`apiGetFetch()`**: new GET fetch wrapper (shared headers, optional timeout, unified error handling) used by QR login flow.
+- **`iLink-App-Id` / `iLink-App-ClientVersion` headers**: read from `package.json` `ilink_appid` and `version` fields; included in all API requests.
+- **Server-provided CDN URLs**: `upload_full_url` (upload) and `full_url` (download) fields added to API types; CDN upload/download now prefer these over client-constructed URLs when present.
+- **`scaned_but_redirect` QR status**: new QR polling state that switches the polling base URL to the server-provided `redirect_host` (IDC redirect support).
+
+### Changed
+
+- **Outbound text path**: `process-message` uses `StreamingMarkdownFilter` (`feed`/`flush`) per delivery chunk instead of `markdownToPlainText`.
+- **Config reload after login**: bumps `channels.openclaw-weixin.channelConfigUpdatedAt` (ISO 8601) in `openclaw.json` on each successful login, replacing the empty `accounts: {}` placeholder write.
+- **QR login base URL**: `fetchQRCode` and QR refresh now always use the fixed URL `https://ilinkai.weixin.qq.com`; no longer requires `apiBaseUrl` to be set in channel config.
+- **`get_bot_qrcode` timeout**: client-side timeout removed in 2.1.4 (request is no longer aborted on a fixed deadline; was increased from 5 s to 10 s in 2.1.2).
+- **`get_qrcode_status` error handling**: network/gateway errors (e.g. Cloudflare 524) now treated as `wait` and retried silently instead of throwing.
+- **`apiFetch` renamed to `apiPostFetch`** internally; all existing POST callers updated.
+- **Config schema**: `logUploadUrl` field replaced by `channelConfigUpdatedAt`.
+- **Compatibility error message**: no longer embeds a hard-coded `PLUGIN_VERSION` string or a legacy `@1.x` install command.
+- **System prompt**: added instruction that `MEDIA:` directives must appear on their own line.
+
+### Removed
+
+- **`markdownToPlainText`** from `src/messaging/send.ts`; coverage moved to `markdown-filter.test.ts`.
+- **`openclaw-weixin` CLI subcommands** (`src/log-upload.ts` and `registerCli` call in `index.ts`). Use `openclaw plugins uninstall @tencent-weixin/openclaw-weixin` instead.
+- **`peerDependencies`** (`openclaw >=2026.3.22`) from `package.json`.
+- **`PLUGIN_VERSION` constant** from `src/compat.ts`.
+
+### Fixed
+
+- QR login no longer fails with "No baseUrl configured" when `apiBaseUrl` is absent from channel config (uses fixed base URL).
+- Resolved "dangerous code pattern" warning when installing the plugin on OpenClaw 2026.3.31+.
+
 ## 2.0.1
 
 ### Added

@@ -1,3 +1,37 @@
+## 2.1.4
+
+### 新增
+
+- **`StreamingMarkdownFilter`**（`src/messaging/markdown-filter.ts`）：字符级流式状态机，逐字符过滤不支持的 Markdown 语法，替代原先的整段 `markdownToPlainText`。Markdown 支持程度从完全不支持升级为部分支持。
+- **`apiGetFetch()`**：新增 GET 请求封装（统一请求头、可选超时、统一错误处理），供扫码登录流程使用。
+- **`iLink-App-Id` / `iLink-App-ClientVersion` 请求头**：从 `package.json` 的 `ilink_appid` 和 `version` 字段读取，随所有 API 请求一并发送。
+- **服务端直传 CDN URL**：API 类型新增 `upload_full_url`（上传）和 `full_url`（下载）字段；CDN 上传/下载优先使用服务端返回的完整 URL，无需客户端拼接。
+- **`scaned_but_redirect` 扫码状态**：新增 QR 轮询状态，支持将轮询 base URL 切换至服务端返回的 `redirect_host`（IDC 跨机房重定向）。
+
+### 变更
+
+- **外发文本路径**：`process-message` 在每次 `deliver` 时改用 `StreamingMarkdownFilter`（`feed`/`flush`）处理回复，替代 `markdownToPlainText`。
+- **登录后配置刷新**：每次微信登录成功后，在 `openclaw.json` 中更新 `channels.openclaw-weixin.channelConfigUpdatedAt`（ISO 8601），不再写入空的 `accounts: {}` 占位。
+- **扫码登录 base URL**：`fetchQRCode` 及二维码刷新始终使用固定地址 `https://ilinkai.weixin.qq.com`，不再依赖 channel 配置中的 `apiBaseUrl`。
+- **`get_bot_qrcode` 超时**：2.1.4 移除客户端超时（请求不再因固定时限被 abort）；2.1.2 曾将超时从 5 s 调整为 10 s。
+- **`get_qrcode_status` 错误处理**：网络/网关错误（如 Cloudflare 524）现在静默返回 `wait` 状态继续轮询，不再向上抛出异常。
+- **`apiFetch` 重命名为 `apiPostFetch`**，所有现有 POST 调用方同步更新。
+- **配置 Schema**：`logUploadUrl` 字段替换为 `channelConfigUpdatedAt`。
+- **兼容性错误提示**：不再硬编码 `PLUGIN_VERSION` 字符串或旧版 `@1.x` 安装命令。
+- **系统提示词**：新增 `MEDIA:` 指令须单独成行的说明。
+
+### 移除
+
+- 从 `src/messaging/send.ts` 删除 **`markdownToPlainText`**，相关测试迁至 `markdown-filter.test.ts`。
+- **`openclaw-weixin` CLI 子命令**（删除 `src/log-upload.ts` 及 `index.ts` 中的 `registerCli` 调用）。请改用 `openclaw plugins uninstall @tencent-weixin/openclaw-weixin`。
+- 从 `package.json` 移除 **`peerDependencies`**（`openclaw >=2026.3.22`）。
+- 从 `src/compat.ts` 移除 **`PLUGIN_VERSION` 常量**。
+
+### 修复
+
+- 扫码登录不再因 channel 配置缺少 `apiBaseUrl` 而报错"No baseUrl configured"（改用固定 base URL）。
+- 解决在 OpenClaw 2026.3.31 及更新版本安装插件时出现的 **dangerous code pattern** 提示。
+
 ## 2.0.1
 
 ### 新增
